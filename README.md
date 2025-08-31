@@ -1,0 +1,1 @@
+# plugins_manager_recource
