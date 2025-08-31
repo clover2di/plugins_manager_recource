@@ -1,0 +1,76 @@
+{
+  "name": "Доска",
+  "nameLocale": {"ru": "Доска", "en": "Board"},
+  "guid": "asc.{GUID}",
+  "version": "0.1.0",
+  "description": "Доска для рисования",
+  "variations": [
+    {
+    "description": "Board",
+    "descriptionLocale": {"ru": "Доска", "en": "Board"},
+    "url": "index.html",
+    "icons": ["resources/icons/light/icon.png"],
+    "icons2": [
+      {
+        "style": "light",
+					"100%": {
+						"normal": "resources/icons/light/icon.png"
+					},
+					"125%": {
+						"normal": "resources/icons/light/icon.png"
+					},
+					"150%": {
+						"normal": "resources/icons/light/icon.png"
+					},
+					"175%": {
+						"normal": "resources/icons/light/icon.png"
+					},
+					"200%": {
+						"normal": "resources/icons/light/icon.png"
+					}
+      },
+      {
+       "style": "dark",
+					"100%": {
+						"normal": "resources/icons/dark/icon.png"
+					},
+					"125%": {
+						"normal": "resources/icons/dark/icon.png"
+					},
+					"150%": {
+						"normal": "resources/icons/dark/icon.png"
+					},
+					"175%": {
+						"normal": "resources/icons/dark/icon.png"
+					},
+					"200%": {
+						"normal": "resources/icons/dark/icon.png"
+					}
+      }
+    ],
+    "EditorsSupport": ["word", "cell", "slide"],
+    "isViewer": true,
+    "isVisual": true,
+    "isModal": true,
+    "isInsideMode": false,
+    "size": [1920, 1080],
+    "initDataType": "none",
+		"events": []
+  }, 
+  {
+	"description": "О программе",
+	"descriptionLocale": {"ru": "О программе", "en": "About"},
+	"url": "about.html",
+	"icons": ["resources/icons/light/icon.png"],
+	"isViewer": true,
+	"isDisplayedInViewer": false,
+	"EditorsSupport": ["word", "cell", "slide"],
+	"isVisual": true,
+	"isModal": true,
+	"isInsideMode": false,
+	"initDataType": "none",
+	"isUpdateOleOnResize": false,
+	"size": [392, 268]
+  }
+]
+}

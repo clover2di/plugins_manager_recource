@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Board — About</title>
+  <link rel="stylesheet" href="../v1/plugins.css" />
+  <script src="../v1/plugins.js"></script>
+  <script src="../v1/plugins-ui.js"></script>
+  <style>
+    body { margin: 0; font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    .wrap { padding: 16px; }
+    h1 { font-size: 16px; margin: 0 0 8px; }
+    .muted { color: #666; }
+    .actions { margin-top: 16px; display:flex; gap:8px; }
+    .btn { padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.15); background:#fff; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 id="aboutTitle">Interactive Board</h1>
+    <div id="aboutDesc" class="muted">Version is taken from config.json. Interactive board for drawing and inserting into a document.</div>
+    <div class="actions">
+      <button class="btn" id="btnClose">Close</button>
+    </div>
+  </div>
+  <script>
+    window.Asc = window.Asc || { plugin: {} };
+    (function(){
+      try {
+        var lang = (window.Asc && Asc.plugin && Asc.plugin.getLocale && Asc.plugin.getLocale()) || navigator.language || 'en';
+        lang = String(lang).toLowerCase().startsWith('ru') ? 'ru-RU' : 'en-US';
+        fetch('translations/' + lang + '.json').then(function(r){ return r.json(); }).then(function(dict){
+          // Use same keys namespace
+          document.title = (dict.title || 'Interactive Board') + ' — ' + (dict.about && dict.about.title ? dict.about.title : 'About');
+          var t = function(path, def){ try { if (!dict) return def; var p = path.split('.'); var cur = dict; for (var i=0;i<p.length;i++){ if (cur && typeof cur==='object' && p[i] in cur) cur = cur[p[i]]; else return def; } return (typeof cur==='string')?cur:def; } catch(_) { return def; } };
+          var el;
+          if ((el = document.getElementById('aboutTitle'))) el.textContent = dict.title || 'Interactive Board';
+          if ((el = document.getElementById('aboutDesc'))) el.textContent = t('about.description', 'Interactive board for drawing and inserting into a document.');
+          var btn = document.getElementById('btnClose'); if (btn) btn.textContent = t('actions.close', 'Close');
+        }).catch(function(){});
+      } catch(_) {}
+    })();
+    document.getElementById('btnClose')?.addEventListener('click', function(){
+      try { if (window.Asc && Asc.plugin && typeof Asc.plugin.button === 'function') { Asc.plugin.button(-1); return; } } catch(_) {}
+      try { if (window.Asc && Asc.plugin && typeof Asc.plugin.executeCommand === 'function') Asc.plugin.executeCommand('close', ''); } catch(_) {}
+    });
+    window.Asc.plugin.init = function(){ try { window.Asc.plugin.resizeWindow(392, 268, 392, 268, 0, 0); } catch(_){} };
+  </script>
+</body>
+</html>

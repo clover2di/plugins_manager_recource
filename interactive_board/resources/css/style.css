@@ -1,0 +1,411 @@
+/* OBLIGATORY flexible window layout + Design tokens */
+:root {
+  --bg-default: #f1f1f1; /* page background */
+  --panel-bg: #f1f1f1;   /* boxes/panels/popovers */
+  --btn-bg: #e1e1e1;      /* button default */
+  --btn-fg: #3A3A3A;      /* button text default */
+  --btn-bg-hover: #00a4f6;/* button hover/active */
+  --btn-fg-hover: #FFFFFF;/* button text hover/active */
+  --border-color: #d9d9d9;/* generic borders */
+  --accent-color: #00a4f6;/* outlines and emphasis */
+  --muted-fg: #666666;    /* subtle text */
+  --radius: 5px;          /* rounding for all */
+  --btn-size: 36px;       /* unified tool button size (smaller) */
+  --icon-size: 20px;      /* icon size inside buttons */
+  --panel-pad: 8px;       /* padding inside tool panels */
+  --panel-gap: calc(var(--btn-size) * 2); /* spacing between bottom panels */
+  --bg-popover-shift-x: 27px; /* horizontal shift for background popover */
+}
+/* Dark theme: swap icon (fg) and background roles, set dark surfaces */
+body.theme-type-dark {
+  --bg-default: #121416;
+  --panel-bg: #23262a;
+  --btn-bg: #3a3f44;     /* swapped from light fg domain */
+  --btn-fg: #e6e8ea;     /* swapped from light bg domain */
+  --btn-bg-hover: #00a4f6;
+  --btn-fg-hover: #ffffff;
+  --border-color: #3d4349;
+  --accent-color: #00a4f6;
+  --muted-fg: #a9b0b6;
+}
+html, body {
+  width: 100%;
+  height: 100%;
+}
+body {
+  overflow: hidden;
+  margin: 0;
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg-default);
+  box-shadow: none;
+  text-shadow: none;
+}
+
+/* Inline text editor (for Text tool) */
+.ib-text-editor {
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  line-height: 1.2;
+  box-sizing: border-box;
+  text-align: left;
+}
+/* New layout: full-screen canvas and right-side toolbar */
+
+#canvasWrapper {
+  position: absolute; top: 0; left: 0; bottom: 0; right: 0; /* canvas full width */
+  background: var(--bg-default);
+  z-index: 0;
+  pointer-events: auto;
+}
+
+#boardBg, #boardCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#boardBg { position: absolute; inset: 0; z-index: 0; }
+#boardCanvas { position: absolute; inset: 0; z-index: 0; }
+
+/* Right vertical toolbox */
+#toolbox {
+  position: absolute;
+  top: 50%;
+  right: 12px; /* floating column centered vertically */
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  z-index: 2; /* above overlay */
+  pointer-events: auto;
+}
+
+.tool-btn { width: var(--btn-size); height: var(--btn-size); display: inline-flex; align-items: center; justify-content: center; padding: 0; color: var(--btn-fg); }
+.tool-btn .icon { width: var(--icon-size); height: var(--icon-size); }
+.btn {
+  pointer-events: auto;
+  padding: 6px 10px;
+  border: none; /* remove outline for buttons */
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  cursor: pointer;
+  border-radius: var(--radius);
+  box-shadow: none;
+  text-shadow: none;
+}
+.btn:hover,
+.btn:active {
+  background: var(--btn-bg-hover);
+}
+/* Icon sizing; color is governed by currentColor via icons.js */
+.btn .icon,
+.btn svg.icon {
+  width: var(--icon-size); height: var(--icon-size);
+  display: block; /* normalize inline baseline differences */
+}
+
+/* Ensure icons in buttons follow --icon-size even if .icon class is missing */
+.tool-btn > svg,
+.tool-btn > img,
+.btn > svg,
+.btn > img {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  color: inherit; /* make sure SVG currentColor follows button text color */
+  display: block;
+}
+
+/* Ensure inline SVGs in generic size buttons inherit color as well */
+.size-btn > svg {
+  color: inherit;
+}
+
+/* Normalize external SVG <img> icons sizing/fit */
+img.icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  object-fit: contain;
+  display: block;
+}
+/* On hover/active, button text/icon use btn-fg-hover via currentColor (handled by icons.js) */
+
+/* Persistent selected state */
+.tool-btn.selected {
+  background: var(--btn-bg-hover);
+  color: var(--btn-fg-hover); /* ensure text/icon contrast when selected */
+}
+.tool-btn.selected .icon,
+.tool-btn.selected svg.icon {
+  color: #FFFFFF;
+  fill: #FFFFFF;
+}
+.tool-row { padding: 8px 0; display: flex; gap: 16px; }
+
+/* Canvas border (optional subtle). Background must be transparent to see #boardBg patterns */
+#boardCanvas { border: 1px solid var(--border-color); border-radius: var(--radius); box-shadow: none; background: transparent; }
+
+/* Inputs/selects placeholders per design */
+input[type="text"],
+input[type="number"],
+input[type="color"],
+select,
+textarea {
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #222222;
+  padding: 6px 8px;
+  border-radius: var(--radius);
+  box-shadow: none;
+  text-shadow: none;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #00a4f6;
+}
+
+/* Generic containers */
+.panel {
+  background: var(--bg-default);
+  border: 1px solid #d9d9d9;
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+.toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Bottom dock with two centered panels */
+#bottomDock {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--panel-gap); /* spacing between panels */
+  background: transparent;
+  z-index: 2; /* above overlay */
+  pointer-events: auto;
+}
+
+#bottomToolbar,
+#bottomActions {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  background: var(--panel-bg); /* panel box color */
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: var(--panel-pad); /* more padding to make the panel box visible */
+}
+
+
+/* Floating tool popover (opens to the left) */
+.tool-btn { position: relative; }
+.tool-popover {
+  position: absolute;
+  top: 50%;
+  left: auto;
+  right: 56px; /* pop to left of button */
+  transform: translateY(-50%);
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 8px;
+  display: none;
+  z-index: 3; /* above toolbars */
+  pointer-events: auto;
+  --palette-width: 160px; /* 6*20 + 5*8 */
+}
+.tool-popover[aria-hidden="false"] { display: block; }
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 20px);
+  grid-auto-rows: 20px;
+  gap: 8px;
+  width: var(--palette-width);
+}
+.color-swatch {
+  width: 20px; height: 20px; border-radius: 5px; cursor: pointer;
+  border: 1px solid var(--border-color); box-shadow: none;
+}
+.color-swatch.selected { outline: 2px solid var(--accent-color); outline-offset: 2px; }
+
+/* Background popover specific color row alignment and spacing */
+#backgroundPopover .color-row {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-start;
+  margin-bottom: 12px;
+  width: var(--palette-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Size row */
+.size-row { display: flex; gap: 0; margin-top: 24px; align-items: center; justify-content: space-between; width: var(--palette-width); }
+/* Text popover spacing and inline layout */
+#textPopover { width: var(--palette-width); }
+#textPopover #textColorGrid { margin-bottom: 8px; }
+#textPopover #textSizeRow { margin-top: 8px; margin-bottom: 0; display: inline-flex; width: 64px; margin-right: 4px; align-items: center; }
+#textPopover #textStyleRow { margin-top: 8px; display: inline-flex; width: calc(var(--palette-width) - 64px - 4px); justify-content: flex-start; gap: 2px; vertical-align: middle; }
+#textPopover #textSizeRow select { width: 60px; box-sizing: border-box; padding: 2px 4px; font-size: 12px; }
+#textPopover #textStyleRow .size-btn { width: 24px; height: 24px; }
+#textPopover #textStyleRow .size-btn span { font-size: 12px; }
+/* Eraser popover: no top offset and centered icons in a single row */
+#eraserPopover .size-row {
+  margin-top: 0;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+}
+/* Background popover: center icons in a single row */
+#backgroundPopover .size-row {
+  margin-top: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 13px;
+  width: var(--palette-width);
+  margin-left: auto;
+  margin-right: auto; /* center inside wide popover */
+}
+/* Position background popover above the bottom toolbar button, centered horizontally */
+#backgroundPopover {
+  top: auto;
+  /* place popover above the entire bottom panel with an extra gap, analogous to right popovers */
+  bottom: calc(var(--btn-size) + var(--panel-pad) + 8px); /* button height + panel padding + gap */
+  left: 50%;
+  right: auto;
+  transform: translateX(calc(-50% - var(--bg-popover-shift-x)));
+  min-width: 100%; /* span width of the toolbar below */
+}
+
+/* Background scale row styling */
+#backgroundPopover .bg-scale-row {
+  width: var(--palette-width);
+  margin: 8px auto 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+#backgroundPopover .bg-scale-row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+}
+#backgroundPopover .bg-scale-value {
+  font-size: 10px;
+  width: 24px;
+  text-align: left;
+  color: var(--muted-fg);
+}
+.size-btn { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: var(--radius); border: 1px solid var(--border-color); background: var(--btn-bg); color: var(--btn-fg); }
+.size-btn.selected { outline: 2px solid #00a4f6; outline-offset: 2px; }
+.size-btn svg { width: 20px; height: 20px; }
+.size-btn .shape-icon { width: 20px; height: 20px; display: block; }
+
+/* Theme adjustments */
+body.theme-type-dark .common_menu { background-color: var(--panel-bg); color: var(--btn-fg); border-right-color: var(--border-color); }
+body.theme-type-dark #editorWrapper { background: var(--bg-default); }
+body.theme-type-dark #boardCanvas { background: transparent; border-color: var(--border-color); }
+
+/* Small confirmation modal */
+.modal-overlay[aria-hidden="true"] { display: none; }
+.modal-overlay[aria-hidden="false"] {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+.modal.small {
+  background: var(--bg-default);
+  border-radius: var(--radius);
+  padding: 12px;
+  min-width: 260px;
+  max-width: 320px;
+  border: 1px solid #d9d9d9;
+}
+.modal-title { font-weight: bold; margin-bottom: 8px; }
+.modal-body { margin-bottom: 12px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* HTML5 confirmation dialogs (Clear, Close) shared styles */
+#confirmClearDialog,
+#confirmCloseDialog {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+}
+#confirmClearDialog::backdrop,
+#confirmCloseDialog::backdrop {
+  background: rgba(0,0,0,0.35);
+}
+#confirmClearDialog form.modal.small,
+#confirmCloseDialog form.modal.small {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--btn-fg);
+}
+
+/* Context menu for canvas (moved from JS inline styles) */
+#boardContextMenu {
+  position: fixed;
+  z-index: 2000;
+  min-width: 180px;
+  background: #f1f1f1; /* requested background */
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: none;
+  padding: 6px 4px;
+  display: none;
+  font-size: 13px;
+  color: var(--btn-fg);
+}
+
+#boardContextMenu .context-item {
+  padding: 6px 10px;
+  cursor: default;
+  user-select: none;
+  background: transparent;
+  outline: none; /* remove focus outline */
+  border: none;
+}
+
+#boardContextMenu .context-item:hover,
+#boardContextMenu .context-item:focus {
+  background: #00a4f6; /* requested highlight */
+  color: #ffffff;
+}
+
+#boardContextMenu .context-item:active {
+  background: #008de0;
+}
+
+/* remove any default outline when a context item is focused/selected */
+#boardContextMenu .context-item:focus { outline: none; box-shadow: none; }
+
+/* Disabled state for context items */
+#boardContextMenu .context-item[aria-disabled="true"] {
+  opacity: 0.5;
+  /* keep pointer-events so clicks still reach the handler for diagnostics and graceful fallback */
+  pointer-events: auto;
+}

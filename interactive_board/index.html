@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Board</title>
+  <script>
+    // Normalize legacy doctype URL params (spreadsheet/presentation/text) to
+    // the editor API's expected values (cell/slide/word). Reload once when mapping.
+    (function(){
+      try {
+        var qs = window.location.search || '';
+        if (!qs) return;
+        var base = window.location.href.split('?')[0];
+        var hash = window.location.hash || '';
+        var params = new URLSearchParams(qs);
+        var d = params.get('doctype');
+        if (d) {
+          var map = { 'spreadsheet': 'cell', 'presentation': 'slide', 'text': 'word' };
+          var low = String(d).toLowerCase();
+          if (map[low] && map[low] !== d) {
+            params.set('doctype', map[low]);
+            var newUrl = base + '?' + params.toString() + hash;
+            // Use replace to avoid polluting history; reload only once.
+            if (newUrl !== window.location.href) {
+              window.location.replace(newUrl);
+            }
+          }
+        }
+      } catch(_) { }
+    })();
+  </script>
+  <link rel="stylesheet" href="resources/css/style.css" />
+  <link rel="stylesheet" href="../v1/plugins.css" />
+  <script src="../v1/plugins.js"></script>
+  <script src="../v1/plugins-ui.js"></script>
+  <script src="scripts/logger.js"></script>
+  <script src="scripts/overlay.js"></script>
+  <script src="scripts/cursors.js"></script>
+  <script src="scripts/tool.pencil.js"></script>
+  <script src="scripts/tool.marker.js"></script>
+  <script src="scripts/tool.eraser.js"></script>
+  <script src="scripts/tool.shapes.js"></script>
+  <script src="scripts/tool.arrow.js"></script>
+  <script src="scripts/tool.text.js"></script>
+  <script src="scripts/tool.cursor.js"></script>
+  <script src="scripts/tool.hand.js"></script>
+  <script src="scripts/tool.image.js"></script>
+  <script src="scripts/icons.js"></script>
+  <script src="scripts/tools.js"></script>
+  <script src="scripts/tool.backgroud.js"></script>
+  <script src="scripts/strokes.js"></script>
+  <script src="scripts/world.js"></script>
+  <script src="scripts/canvas.js"></script>
+  <script src="scripts/i18n.js"></script>
+  <script src="scripts/export.js"></script>
+  <script src="scripts/insert.js"></script>
+  <script src="scripts/history.js"></script>
+</head>
+<body>
+  
+  <!-- Fullscreen canvas area -->
+  <div id="canvasWrapper">
+  <canvas id="boardBg"></canvas>
+  <canvas id="boardCanvas"></canvas>
+  </div>
+
+
+
+  <!-- Right vertical toolbar -->
+  <div id="toolbox" class="toolbar noselect">
+    <button id="toolPencil" class="btn tool-btn" title="Pencil" aria-label="Pencil">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M80 0v-160h800V0H80Zm160-320h56l312-311-29-29-28-28-311 312v56Zm-80 80v-170l448-447q11-11 25.5-17t30.5-6q16 0 31 6t27 18l55 56q12 11 17.5 26t5.5 31q0 15-5.5 29.5T777-687L330-240H160Zm560-504-56-56 56 56ZM608-631l-29-29-28-28 57 57Z"/></svg>
+      <div id="pencilPopover" class="tool-popover" role="menu" aria-hidden="true">
+        <div id="pencilColorGrid" class="color-grid" aria-label="Colors"></div>
+        <div id="pencilSizeRow" class="size-row" aria-label="Stroke width"></div>
+      </div>
+    </button>
+    <button id="toolMarker" class="btn tool-btn" title="Marker" aria-label="Marker">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M80 0v-160h800V0H80Zm504-480L480-584 320-424l103 104 161-160Zm-47-160 103 103 160-159-104-104-159 160Zm-84-29 216 216-189 190q-24 24-56.5 24T367-263l-27 23H140l126-125q-24-24-25-57.5t23-57.5l189-189Zm0 0 187-187q24-24 56.5-24t56.5 24l104 103q24 24 24 56.5T857-640L669-453 453-669Z"/></svg>
+      <div id="markerPopover" class="tool-popover" role="menu" aria-hidden="true">
+        <div id="markerColorGrid" class="color-grid" aria-label="Colors"></div>
+        <div id="markerSizeRow" class="size-row" aria-label="Stroke width"></div>
+      </div>
+    </button>
+    <button id="toolShapes" class="btn tool-btn" title="Shapes" aria-label="Shapes">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M600-360ZM320-242q10 1 19.5 1.5t20.5.5q11 0 20.5-.5T400-242v82h400v-400h-82q1-10 1.5-19.5t.5-20.5q0-11-.5-20.5T718-640h82q33 0 56.5 23.5T880-560v400q0 33-23.5 56.5T800-80H400q-33 0-56.5-23.5T320-160v-82Zm40-78q-117 0-198.5-81.5T80-600q0-117 81.5-198.5T360-880q117 0 198.5 81.5T640-600q0 117-81.5 198.5T360-320Zm0-80q83 0 141.5-58.5T560-600q0-83-58.5-141.5T360-800q-83 0-141.5 58.5T160-600q0 83 58.5 141.5T360-400Zm0-200Z"/></svg>
+      <div id="shapesPopover" class="tool-popover" role="menu" aria-hidden="true">
+        <div id="shapesColorGrid" class="color-grid" aria-label="Colors"></div>
+        <div id="shapesRow" class="size-row" aria-label="Shapes"></div>
+      </div>
+    </button>
+    <button id="toolArrow" class="btn tool-btn" title="Arrow" aria-label="Arrow">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M744-160 280-624v264h-80v-400h400v80H336l464 464-56 56Z"/></svg>
+      <div id="arrowPopover" class="tool-popover" role="menu" aria-hidden="true">
+        <div id="arrowColorGrid" class="color-grid" aria-label="Colors"></div>
+        <div id="arrowSizeRow" class="size-row" aria-label="Stroke width"></div>
+      </div>
+    </button>
+    <button id="toolText" class="btn tool-btn" title="Text" aria-label="Text">
+      <!-- Using resources/icons/light/tool_text.svg with currentColor -->
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M280-160v-520H80v-120h520v120H400v520H280Zm360 0v-320H520v-120h360v120H760v320H640Z"/></svg>
+      <div id="textPopover" class="tool-popover" role="menu" aria-hidden="true">
+        <div id="textColorGrid" class="color-grid" aria-label="Text color"></div>
+        <div id="textSizeRow" class="size-row" aria-label="Text size"></div>
+        <div id="textStyleRow" class="size-row" aria-label="Text style"></div>
+      </div>
+    </button>
+    <button id="toolEraser" class="btn tool-btn" title="Eraser" aria-label="Eraser">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M690-240h190v80H610l80-80Zm-500 80-85-85q-23-23-23.5-57t22.5-58l440-456q23-24 56.5-24t56.5 23l199 199q23 23 23 57t-23 57L520-160H190Zm296-80 314-322-198-198-442 456 64 64h262Zm-6-240Z"/></svg>
+      <div id="eraserPopover" class="tool-popover" role="menu" aria-hidden="true">
+        <div id="eraserSizeRow" class="size-row" aria-label="Eraser width"></div>
+      </div>
+    </button>
+  </div>
+
+  <!-- Bottom dock: centered container holding toolbars -->
+  <div id="bottomDock" class="toolbar noselect">
+    <div id="bottomToolbar" class="toolbar noselect">
+    <button id="toolCursor" class="btn tool-btn" title="Cursor" aria-label="Cursor">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="m320-410 79-110h170L320-716v306ZM551-80 406-392 240-160v-720l560 440H516l144 309-109 51ZM399-520Z"/></svg>
+    </button>
+    <button id="toolHand" class="btn tool-btn" title="Hand" aria-label="Hand">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M402-40q-30 0-56-13.5T303-92L48-465l24-23q19-19 45-22t47 12l116 81v-383q0-17 11.5-28.5T320-840q17 0 28.5 11.5T360-800v537L212-367l157 229q5 8 14 13t19 5h278q33 0 56.5-23.5T760-200v-560q0-17 11.5-28.5T800-800q17 0 28.5 11.5T840-760v560q0 66-47 113T680-40H402Zm38-440v-400q0-17 11.5-28.5T480-920q17 0 28.5 11.5T520-880v400h-80Zm160 0v-360q0-17 11.5-28.5T640-880q17 0 28.5 11.5T680-840v360h-80ZM486-300Z"/></svg>
+    </button>
+  <button id="toolUpload" class="btn tool-btn" title="Image" aria-label="Image">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M200-120q-33 0-56.5-23.5T120-200v-240h80v240h240v80H200Zm320 0v-80h240v-240h80v240q0 33-23.5 56.5T760-120H520ZM240-280l120-160 90 120 120-160 150 200H240ZM120-520v-240q0-33 23.5-56.5T200-840h240v80H200v240h-80Zm640 0v-240H520v-80h240q33 0 56.5 23.5T840-760v240h-80Zm-140-40q-26 0-43-17t-17-43q0-26 17-43t43-17q26 0 43 17t17 43q0 26-17 43t-43 17Z"/></svg>
+    </button>
+    <button id="toolBackground" class="btn tool-btn" title="Background" aria-label="Background">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M176-120q-19-4-35.5-20.5T120-176l664-664q21 5 36 20.5t21 35.5L176-120Zm-56-252v-112l356-356h112L120-372Zm0-308v-80q0-33 23.5-56.5T200-840h80L120-680Zm560 560 160-160v80q0 33-23.5 56.5T760-120h-80Zm-308 0 468-468v112L484-120H372Z"/></svg>
+      <div id="backgroundPopover" class="tool-popover" role="menu" aria-hidden="true">
+        <div id="backgroundRow" class="size-row" aria-label="Background types"></div>
+      </div>
+    </button>
+    <button id="toolClear" class="btn tool-btn" title="Clear" aria-label="Clear">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="m376-320 104-104 104 104 56-56-104-104 104-104-56-56-104 104-104-104-56 56 104 104-104 104 56 56ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-480H160v480Zm0 0v-480 480Z"/></svg>
+    </button>
+    </div>
+    <div id="bottomActions" class="toolbar noselect" aria-label="Actions">
+  <button id="toolUndo" class="btn tool-btn" title="Undo" aria-label="Undo">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M280-200v-80h284q63 0 109.5-40T720-420q0-60-46.5-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.5 63T800-420q0 94-69.5 157T564-200H280Z"/></svg>
+      </button>
+  <button id="toolRedo" class="btn tool-btn" title="Redo" aria-label="Redo">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M396-200q-97 0-166.5-63T160-420q0-94 69.5-157T396-640h252L544-744l56-56 200 200-200 200-56-56 104-104H396q-63 0-109.5 40T240-420q0 60 46.5 100T396-280h284v80H396Z"/></svg>
+      </button>
+  <button id="toolSave" class="btn tool-btn" title="Save" aria-label="Save">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="m720-120 160-160-56-56-64 64v-167h-80v167l-64-64-56 56 160 160ZM560 0v-80h320V0H560ZM240-160q-33 0-56.5-23.5T160-240v-560q0-33 23.5-56.5T240-880h280l240 240v121h-80v-81H480v-200H240v560h240v80H240Zm0-80v-560 560Z"/></svg>
+      </button>
+  <button id="toolFullscreen" class="btn tool-btn" title="Fullscreen" aria-label="Fullscreen">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z"/></svg>
+      </button>
+  <button id="toolClose" class="btn tool-btn" title="Close" aria-label="Close">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script src="scripts/canvas.menu.js"></script>
+  <script src="scripts/plugin.js"></script>
+  
+  <!-- HTML5 dialog for Clear confirmation -->
+  <dialog id="confirmClearDialog" aria-labelledby="confirmClearTitle" role="dialog" aria-modal="true">
+  <form method="dialog" class="modal small">
+  <div id="confirmClearTitle" class="modal-title" style="padding:12px 16px;font-weight:600;">Confirmation</div>
+  <div class="modal-body" style="padding:0 16px 8px;">Clear the board?</div>
+      <div class="modal-actions" style="padding:8px 16px 16px;display:flex;gap:8px;justify-content:flex-end;">
+  <button id="confirmClearYes" class="btn" value="yes">Yes</button>
+  <button id="confirmClearNo" class="btn" value="no">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- HTML5 dialog for Close confirmation -->
+  <dialog id="confirmCloseDialog" aria-labelledby="confirmCloseTitle" role="dialog" aria-modal="true">
+    <form method="dialog" class="modal small">
+  <div id="confirmCloseTitle" class="modal-title" style="padding:12px 16px;font-weight:600;">Confirmation</div>
+  <div id="confirmCloseBody" class="modal-body" style="padding:0 16px 8px;">Exit the application?</div>
+      <div class="modal-actions" style="padding:8px 16px 16px;display:flex;gap:8px;justify-content:flex-end;">
+  <button id="confirmCloseYes" class="btn" value="yes">Yes</button>
+  <button id="confirmCloseNo" class="btn" value="no">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

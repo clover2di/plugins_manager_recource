@@ -1,0 +1,82 @@
+{
+  "title": "Interactive Board",
+  "controls": {
+    "clear": "Clear",
+    "color": "Color",
+    "width": "Width",
+    "pen": "Pen",
+    "eraser": "Eraser"
+  },
+  "tools": {
+    "pencil": "Pencil",
+    "marker": "Marker",
+    "shapes": "Shapes",
+    "arrow": "Arrow",
+    "text": "Text",
+    "eraser": "Eraser"
+  },
+  "bottom": {
+    "cursor": "Cursor",
+    "hand": "Hand",
+  "image": "Image",
+    "background": "Background",
+    "clear": "Clear"
+  },
+  "actions": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "save": "Save",
+    "fullscreen": "Fullscreen",
+    "close": "Close",
+    "paste": "Paste"
+  },
+  "aria": {
+    "colors": "Colors",
+    "stroke_width": "Stroke width",
+    "shapes": "Shapes",
+    "text_color": "Text color",
+    "text_size": "Text size",
+    "text_style": "Text style",
+    "eraser_width": "Eraser width",
+    "background_types": "Background types",
+    "actions": "Actions"
+  },
+  "dialog": {
+    "confirm": "Confirmation",
+    "clear_body": "Clear the board?",
+  "close_body": "Exit the application?",
+    "yes": "Yes",
+    "no": "Cancel"
+  },
+  "about": {
+    "title": "About",
+    "description": "Interactive board for drawing and inserting into a document."
+  },
+  "shapes": {
+    "line": "Line",
+    "circle": "Circle",
+    "triangle": "Triangle",
+    "square": "Square",
+    "star": "Star"
+  },
+  "background": {
+    "base": "Base",
+    "dot": "Dots",
+    "grid": "Grid",
+  "lines": "Lines"
+  },
+  "text": {
+    "bold": "Bold",
+    "italic": "Italic",
+    "underline": "Underline"
+  },
+  "toast": {
+    "insert": {
+      "word": "Inserted into document",
+      "slide": "Inserted onto slide",
+      "cell": "Inserted into sheet",
+      "ok": "Inserted",
+      "error": "Failed to insert image"
+    }
+  }
+}
