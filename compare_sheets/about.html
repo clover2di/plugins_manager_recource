@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title id="docTitle">About</title>
+  <link rel="stylesheet" href="resources/style.css" />
+  <link rel="stylesheet" href="resources/theme.css" />
+  <style>
+    .about-wrapper { max-width:780px; margin:0 auto 32px; font-size:14px; line-height:1.55; }
+  .about-wrapper h1 { font-size:20px; font-weight:600; margin:0 0 12px; color:#00A4F6; }
+    .about-line { margin:10px 0; }
+    .about-version-bottom { margin-top:2px; font-weight:600; }
+    /* Adjusted spacing: no gap between purpose (#2) and license (#3); large gap after license before developed (#4) */
+    #aboutPurpose { margin-bottom:0; }
+    #aboutLicense { color:#00A4F6; text-decoration:underline; margin-top:0; margin-bottom:42px; }
+    #aboutLicense.expired { color:#c62828; text-decoration:none; font-weight:600; margin-bottom:42px; }
+    #aboutDeveloped { margin-top:0; }
+  </style>
+</head>
+<body class="about">
+  <div class="about-wrapper" id="aboutRoot">
+    <h1 id="aboutHeading"></h1>
+    <p class="about-line" id="aboutPurpose"></p>
+  <p class="about-line" id="aboutLicense"></p>
+  <p class="about-line" id="aboutDeveloped"></p>
+  <p class="about-line about-version-bottom" id="aboutVersionLine"></p>
+  </div>
+  <script src="scripts/plugin_about.js"></script>
+  <script>
+  (function(){
+    function fmt(template, map){ return template.replace(/\{(\w+)\}/g,(m,k)=> (map&&k in map)? map[k]: m); }
+    const lang='ru'; // static for now
+    function apply(dict,cfg){
+  const rawName = (cfg && cfg.name) || (dict && dict['title.main']) || 'Plugin';
+  const localizedName = (cfg && cfg.nameLocale && cfg.nameLocale[lang]) ? cfg.nameLocale[lang] : rawName;
+      const version = (cfg && cfg.version) || '0.0.0';
+  
+  const expired = (typeof window.__licenseExpired !== 'undefined') ? window.__licenseExpired : (window.LicenseManager && window.LicenseManager.isExpired());
+  const licenseDate = (!expired && (window.__licenseExpiryStr || (window.LicenseManager && window.LicenseManager.getExpiryDateStr()))) || 'n/a';
+      const headingT = dict['about.new.heading'] || '{NAME} ({VERSION})';
+      const purposeT = dict['about.new.purpose'] || 'Плагин {NAME} ...';
+      const devT = dict['about.new.developed'] || 'Разработано';
+      const licT = dict['about.new.license'] || 'Срок действия лицензии по {DATE}';
+      const verLineT = dict['about.new.versionLine'] || 'Версия {VERSION}';
+  document.getElementById('aboutHeading').textContent = fmt(headingT,{NAME:localizedName, VERSION:version});
+  document.getElementById('aboutPurpose').textContent = fmt(purposeT,{NAME:localizedName, VERSION:version});
+  // Developer line: clickable hyperlink with underline
+  const devEl = document.getElementById('aboutDeveloped');
+  devEl.innerHTML = '<a href="https://r7-consult.ru/" target="_blank" rel="noopener" style="text-decoration:underline; color:inherit;">'+ devT +'</a>';
+  const licenseEl = document.getElementById('aboutLicense');
+  if(expired){
+    licenseEl.classList.add('expired');
+    licenseEl.innerHTML = '<a href="https://r7-consult.ru/" target="_blank" rel="noopener" style="color:inherit;">Срок лицензии истек. Обратитесь к разработчикам!</a>';
+  } else {
+    licenseEl.textContent = fmt(licT,{DATE:licenseDate});
+  }
+      document.getElementById('aboutVersionLine').textContent = fmt(verLineT,{VERSION:version});
+  document.getElementById('docTitle').textContent = localizedName+' '+version;
+    }
+    Promise.all([
+      fetch('translations/'+lang+'.json').then(r=>r.json()).catch(()=>({})),
+      fetch('config.json').then(r=>r.json()).catch(()=>({}))
+    ]).then(([dict,cfg])=>apply(dict,cfg));
+  })();
+  </script>
+</body>
+</html>

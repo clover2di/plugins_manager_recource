@@ -1,0 +1,77 @@
+{
+  "name": "Compare Tables",
+  "nameLocale": {"ru": "Сравнение Таблиц", "en": "Compare Sheets"},
+  "guid": "asc.{A4AE3A87-3F93-4205-AEF3-2DEABA54C88A}",
+  "version": "0.4.5",
+  "description": "Worksheet/table comparison plugin",
+  "variations": [
+    {
+    "description": "Compare worksheets",
+    "descriptionLocale": {"ru": "Сравнить листы", "en": "Compare Worksheets"},
+    "url": "index.html",
+    "icons": ["resources/icons/main_dark.svg"],
+    "icons2": [
+      {
+        "style": "light",
+					"100%": {
+						"normal": "resources/icons/main_dark.svg"
+					},
+					"125%": {
+						"normal": "resources/icons/main_dark.svg"
+					},
+					"150%": {
+						"normal": "resources/icons/main_dark.svg"
+					},
+					"175%": {
+						"normal": "resources/icons/main_dark.svg"
+					},
+					"200%": {
+						"normal": "resources/icons/main_dark.svg"
+					}
+      },
+      {
+       "style": "dark",
+					"100%": {
+						"normal": "resources/icons/main_light.svg"
+					},
+					"125%": {
+						"normal": "resources/icons/main_light.svg"
+					},
+					"150%": {
+						"normal": "resources/icons/main_light.svg"
+					},
+					"175%": {
+						"normal": "resources/icons/main_light.svg"
+					},
+					"200%": {
+						"normal": "resources/icons/main_light.svg"
+					}
+      }
+    ],
+    "EditorsSupport": ["cell"],
+    "isViewer": true,
+    "isVisual": true,
+    "isModal": true,
+    "isInsideMode": false,
+    "size": [1920, 1080],
+    "initDataType": "none",
+    "events": [],
+    "buttons": []
+  }, 
+  {
+	"description": "О программе",
+	"descriptionLocale": {"ru": "О программе", "en": "About"},
+	"url": "about.html",
+	"icons": ["resources/icons/main_dark.svg"],
+	"isViewer": true,
+	"isDisplayedInViewer": false,
+	"EditorsSupport": ["cell"],
+	"isVisual": true,
+	"isModal": true,
+	"isInsideMode": false,
+	"initDataType": "none",
+	"isUpdateOleOnResize": false,
+	"size": [392, 268]
+  }
+]
+}

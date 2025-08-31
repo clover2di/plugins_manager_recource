@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title data-i18n="title.main">Сравнение Таблиц</title>
+  <link rel="stylesheet" href="resources/style.css" />
+  <link rel="stylesheet" href="resources/theme.css" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="scripts/plugin_about.js"></script>
+  <script>
+    
+    (function(){
+      try {
+        if(window.LicenseManager && window.LicenseManager.isExpired()) {
+          window.location.replace('about.html');
+          setTimeout(function(){
+            if(!/about\.html/i.test(window.location.pathname)) {
+              var ov=document.createElement('div');
+              ov.style.cssText='position:fixed;inset:0;z-index:99999;background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font:16px sans-serif;text-align:center;padding:32px';
+              ov.innerHTML='Срок лицензии истек. <br/>Окно будет перенаправлено на страницу информации.<br/><br/>'+
+                '<a href="about.html" style="color:#4FC3F7;font-size:18px;">Перейти к информации о лицензии</a>';
+              document.documentElement.appendChild(ov);
+            }
+          },400);
+        }
+      } catch(e){}
+  })();
+  </script>
+</head>
+<body>
+  <div class="topbar">
+    <div class="plugin-menu" id="pluginMenu">
+  <button class="plugin-icon" id="pluginIcon" aria-haspopup="true" aria-expanded="false" data-i18n-title="menu.toggle" data-i18n-aria="menu.toggle"><span>≡</span></button>
+  <div class="plugin-dropdown" id="pluginDropdown" role="menu" aria-label="Навигация плагина" data-i18n-aria="menu.nav">
+        <a href="index.html" class="menu-item active" data-i18n="menu.start" role="menuitem">Старт</a>
+        <a href="about.html" class="menu-item" data-i18n="menu.about" role="menuitem">О программе</a>
+      </div>
+    </div>
+  </div>
+  <div id="appRoot" class="layout-root">
+  <div id="uiBlocker" class="app-blocker" aria-hidden="true" style="pointer-events:none"></div>
+  <div id="sidebar" class="panel-left">
+  <h1 class="app-title" data-i18n="title.main" id="appTitleMain">Сравнение Таблиц</h1>
+      <section class="section">
+  <label for="baseSheetSelect" data-i18n="label.baseSheet">Источник 1</label>
+        <div class="file-name-row"><span id="baseFileNameLabel" class="file-name-label"></span></div>
+        <div class="input-row upload-menu-container">
+          <select id="baseSheetSelect" aria-labelledby="baseSheetSelect" disabled></select>
+          <button type="button" id="btnUploadBase" class="icon-btn icon-only has-dropdown" data-i18n-aria="btn.uploadBase"><img src="resources/icons/sheet_upload.png" alt=""/></button>
+          <div class="upload-dropdown" id="ddBaseUpload" role="menu" aria-label="Base import options">
+            <button type="button" id="btnUseCurrentBase" class="dropdown-item" role="menuitem" data-i18n="upload.currentBase" data-i18n-title="msg.apiLater">Текущий файл</button>
+            <button type="button" id="btnUploadFileBase" class="dropdown-item" role="menuitem" data-i18n="upload.fileBase">Загрузить файл</button>
+          </div>
+        </div>
+      </section>
+      <section class="section">
+  <label for="targetSheetSelect" data-i18n="label.targetSheet">Источник 2</label>
+        <div class="file-name-row"><span id="targetFileNameLabel" class="file-name-label"></span></div>
+        <div class="input-row upload-menu-container">
+          <select id="targetSheetSelect" aria-labelledby="targetSheetSelect" disabled></select>
+          <button type="button" id="btnUploadTarget" class="icon-btn icon-only has-dropdown" data-i18n-aria="btn.uploadTarget"><img src="resources/icons/sheet_upload.png" alt=""/></button>
+          <div class="upload-dropdown" id="ddTargetUpload" role="menu" aria-label="Target import options">
+            <button type="button" id="btnUseCurrentTarget" class="dropdown-item" role="menuitem" data-i18n="upload.currentTarget" data-i18n-title="msg.apiLater">Текущий файл</button>
+            <button type="button" id="btnUploadFileTarget" class="dropdown-item" role="menuitem" data-i18n="upload.fileTarget">Загрузить файл</button>
+          </div>
+        </div>
+      </section>
+    <section class="section options">
+  <h2 data-i18n="title.options">Опции</h2>
+    <div class="option-item"><input type="checkbox" id="optIgnoreCase" checked /> <label for="optIgnoreCase" data-i18n="opt.ignoreCase">Игнорировать регистр</label></div>
+    <div class="option-item"><input type="checkbox" id="optTrim" checked /> <label for="optTrim" data-i18n="opt.trimSpaces">Убирать пробелы</label></div>
+    <div class="option-item"><input type="checkbox" id="optFormat" /> <label for="optFormat" data-i18n="opt.compareFormatting">Сравнивать форматирование</label></div>
+      </section>
+      <section class="section actions">
+  <button id="btnRun" class="primary" data-i18n="btn.run">Запуск</button>
+  <button id="btnExportJson" class="secondary" data-i18n="btn.exportJson" disabled>Экспорт JSON</button>
+  <button id="btnReport" class="secondary" data-i18n="btn.report" disabled>Отчет</button>
+      <button id="btnClearImports" class="secondary" data-i18n="btn.clearImports" disabled>Очистить импорт</button>
+      </section>
+    <section class="section legend" id="legendSection">
+  <h2 data-i18n="title.legend">Легенда</h2>
+        <div class="legend-actions" id="legendActions">
+          <button type="button" id="btnCatSelectAll" class="icon-btn icon-only" data-i18n-title="btn.catSelectAll" data-i18n-aria="btn.catSelectAll"><img src="resources/icons/select_all.png" alt=""/></button>
+          <button type="button" id="btnCatClearAll" class="icon-btn icon-only" data-i18n-title="btn.catClearAll" data-i18n-aria="btn.catClearAll"><img src="resources/icons/select_clear.png" alt=""/></button>
+          <button type="button" id="btnCatReset" class="icon-btn icon-only" data-i18n-title="btn.catReset" data-i18n-aria="btn.catReset"><img src="resources/icons/select_reset.png" alt=""/></button>
+        </div>
+        <ul class="legend-list" id="legendList">
+  <li data-difftype="value"><label><input type="checkbox" class="cat-filter" data-cat="value" checked><span class="lgd value-change"></span><span data-i18n="legend.valueChange">Изменено значение</span> <span class="cat-count" data-count="value"></span></label></li>
+  <li data-difftype="formula"><label><input type="checkbox" class="cat-filter" data-cat="formula" checked><span class="lgd formula-change"></span><span data-i18n="legend.formulaChange">Изменена формула</span> <span class="cat-count" data-count="formula"></span></label></li>
+  <li data-difftype="inserted-row"><label><input type="checkbox" class="cat-filter" data-cat="inserted-row" checked><span class="lgd inserted-row"></span><span data-i18n="legend.insertedRow">Вставлена строка</span> <span class="cat-count" data-count="inserted-row"></span></label></li>
+  <li data-difftype="deleted-row"><label><input type="checkbox" class="cat-filter" data-cat="deleted-row" checked><span class="lgd deleted-row"></span><span data-i18n="legend.deletedRow">Удалена строка</span> <span class="cat-count" data-count="deleted-row"></span></label></li>
+  <li data-difftype="formulaToValue"><label><input type="checkbox" class="cat-filter" data-cat="formulaToValue" checked><span class="lgd formulaToValue"></span><span data-i18n="legend.formulaToValue">Формула → Значение</span> <span class="cat-count" data-count="formulaToValue"></span></label></li>
+  <li data-difftype="valueToFormula"><label><input type="checkbox" class="cat-filter" data-cat="valueToFormula" checked><span class="lgd valueToFormula"></span><span data-i18n="legend.valueToFormula">Значение → Формула</span> <span class="cat-count" data-count="valueToFormula"></span></label></li>
+  <li data-difftype="type"><label><input type="checkbox" class="cat-filter" data-cat="type" checked><span class="lgd type"></span><span data-i18n="legend.typeChange">Изменён тип</span> <span class="cat-count" data-count="type"></span></label></li>
+  <li data-difftype="format"><label><input type="checkbox" class="cat-filter" data-cat="format" checked><span class="lgd format"></span><span data-i18n="legend.formatChange">Изменён формат</span> <span class="cat-count" data-count="format"></span></label></li>
+  <li data-difftype="inserted-col"><label><input type="checkbox" class="cat-filter" data-cat="inserted-col" checked><span class="lgd inserted-col"></span><span data-i18n="legend.insertedCol">Вставлен столбец</span> <span class="cat-count" data-count="inserted-col"></span></label></li>
+  <li data-difftype="deleted-col"><label><input type="checkbox" class="cat-filter" data-cat="deleted-col" checked><span class="lgd deleted-col"></span><span data-i18n="legend.deletedCol">Удалён столбец</span> <span class="cat-count" data-count="deleted-col"></span></label></li>
+  </ul>
+      </section>
+    </div>
+    <div id="results" class="panel-right layout-fixed-3">
+      <!-- Region 1: Status / progress (60px) -->
+      <div id="regionStatus" class="region-status">
+        <div class="toolbar" id="resultsToolbar">
+          <button id="btnToggleSidebar" class="status-toggle" data-i18n-title="btn.hidePanel" data-i18n-aria="btn.hidePanel">
+            <img class="icon-close" src="resources/icons/leftpanel_close.png" alt="close" />
+            <img class="icon-open" src="resources/icons/leftpanel_open.png" alt="open" />
+          </button>
+          <span id="progressText" data-i18n="status.idle">Ожидание</span>
+          <button id="btnCancel" class="secondary" style="display:none" data-i18n="btn.cancel">Отмена</button>
+          <div class="progress-bar" id="progressBar" aria-label="Progress"><span></span></div>
+        </div>
+        <div id="messageArea" class="messages" aria-live="polite"></div>
+      </div>
+      <!-- Region 2: Previews (300px) -->
+      <div id="regionPreviews" class="region-previews">
+        <div id="sheetPreviewWrapper" class="sheet-preview hidden">
+          <div class="sheet-preview-col">
+            <h3 class="preview-title" data-i18n="preview.baseTitle">Превью базы</h3>
+            <div id="basePreview" class="sheet-grid" aria-label="Base sheet preview"></div>
+          </div>
+          <div class="sheet-preview-col">
+            <h3 class="preview-title" data-i18n="preview.targetTitle">Превью цели</h3>
+            <div id="targetPreview" class="sheet-grid" aria-label="Target sheet preview"></div>
+          </div>
+        </div>
+        <div class="preview-controls-row" id="previewControlsRow">
+          <label class="sync-label"><input type="checkbox" id="chkSyncScroll" /> <span data-i18n="preview.enableSyncScroll">Включить синхронный скроллинг</span></label>
+        </div>
+      </div>
+      <!-- Region 3: Diff (400px) -->
+      <div id="regionDiff" class="region-diff">
+  <div id="diffSearchBar" class="diff-search-bar hidden">
+          <button id="btnDiffSearchToggle" class="icon-only" data-i18n-title="search.toggle" data-i18n-aria="search.toggle"><img src="resources/icons/select_search.png" alt="" /></button>
+          <div class="diff-search-fields hidden" id="diffSearchFields">
+            <input id="diffSearchInput" type="text" data-i18n-ph="search.placeholder" placeholder="Поиск" aria-label="Search text in diffs" />
+            <span id="diffSearchCount" aria-live="polite">0/0</span>
+            <button id="btnDiffSearchPrev" class="icon-only" data-i18n-title="search.prev" data-i18n-aria="search.prev"><img src="resources/icons/search_back.png" alt="" /></button>
+            <button id="btnDiffSearchNext" class="icon-only" data-i18n-title="search.next" data-i18n-aria="search.next"><img src="resources/icons/search_forward.png" alt="" /></button>
+            <button id="btnDiffSearchClear" class="icon-only" data-i18n-title="search.clear" data-i18n-aria="search.clear"><img src="resources/icons/close.png" alt="" /></button>
+          </div>
+        </div>
+        <div id="diffContainer" class="diff-container" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+  <!-- Sidebar toggle handled in status toolbar button (#btnToggleSidebar) -->
+  <!-- Sheet selection modal -->
+  <div id="sheetSelectModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="sheetSelectTitle">
+    <div class="modal-content">
+  <h2 id="sheetSelectTitle" data-i18n="title.selectSheets">Выбор листов для импорта</h2>
+      <div id="sheetSelectList" class="sheet-list"></div>
+      <div class="modal-actions sheet-select-actions">
+        <div class="left-group">
+          <button id="btnSheetSelectAll" class="icon-only" data-i18n-title="btn.selectAll" data-i18n-aria="btn.selectAll">
+            <img src="resources/icons/select_all.png" alt="All" />
+          </button>
+          <button id="btnSheetSelectNone" class="icon-only" data-i18n-title="btn.selectNone" data-i18n-aria="btn.selectNone">
+            <img src="resources/icons/select_clear.png" alt="None" />
+          </button>
+        </div>
+        <div class="right-group">
+          <button id="btnSheetSelectOk" class="primary" data-i18n="btn.ok">ОК</button>
+          <button id="btnSheetSelectCancel" class="secondary cancel-alt" data-i18n="btn.cancel">Отмена</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <input type="file" id="fileBase" accept=".csv,.tsv,.txt,.xls,.xlsx,.xlsm,.xlsb,.ods,.fods" style="display:none" />
+  <input type="file" id="fileTarget" accept=".csv,.tsv,.txt,.xls,.xlsx,.xlsm,.xlsb,.ods,.fods" style="display:none" />
+  <script src="scripts/common/api_r7.js"></script>
+  <script src="scripts/common/api.js"></script>
+  <script src="scripts/common/logger.js"></script>
+  <script src="scripts/state.js"></script>
+  <script src="scripts/diff_engine.js"></script>
+  <script src="scripts/cell_visuals.js"></script>
+  <script src="scripts/highlight.js"></script>
+  <script src="scripts/diff_search.js"></script>
+  <script src="scripts/report_export.js"></script>
+  <script src="scripts/ui.js"></script>
+  <script src="scripts/plugin.js"></script>
+  <script src="scripts/dropdown_menu.js"></script>
+  <script>
+    (function(){
+      function applyTranslations(dict){
+        if(!dict) return;
+        window.__i18n = dict; // expose globally for dynamic UI (diff headers etc.)
+        document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(dict[k]) el.textContent=dict[k]; });
+        document.querySelectorAll('[data-i18n-title]').forEach(el=>{ const k=el.getAttribute('data-i18n-title'); if(dict[k]){ el.title=dict[k]; el.setAttribute('aria-label', dict[k]); } });
+        document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ const k=el.getAttribute('data-i18n-ph'); if(dict[k]) el.setAttribute('placeholder', dict[k]); });
+        document.querySelectorAll('[data-i18n-aria]').forEach(el=>{ const k=el.getAttribute('data-i18n-aria'); if(dict[k]) el.setAttribute('aria-label', dict[k]); });
+      }
+      document.documentElement.lang='ru';
+      fetch('translations/ru.json').then(r=>r.json()).then(applyTranslations).catch(()=>{});
+      // Append version to plugin title (ru) once config loaded
+      fetch('config.json').then(r=>r.json()).then(cfg=>{
+        try {
+          const ver = cfg && cfg.version ? cfg.version : null;
+          if(ver){
+            const tEl=document.getElementById('appTitleMain');
+            if(tEl){
+              // Base localized name
+              const baseName = tEl.textContent.replace(/\s*\(v?\d+[^)]*\)$/i,'');
+              tEl.textContent = baseName + ' ('+ver+')';
+              document.title = baseName + ' ('+ver+')';
+            }
+          }
+        } catch(_e){}
+      }).catch(()=>{});
+    })();
+  </script>
+</body>
+<script>
+// Refresh placeholder labels after translations load (in case no imports yet)
+document.addEventListener('DOMContentLoaded', ()=>{
+  try { if(window.UI && window.UI.init) { /* UI.init already triggers label update; explicit refresh if state empty */ setTimeout(()=>{
+    if(window.State && State.get){ const st=State.get(); if(!st.baseOriginalFile){ const f=document.querySelector('label[for="baseSheetSelect"]'); if(f) f.textContent=(window.__i18n&&window.__i18n['placeholder.source1'])||f.textContent; } if(!st.targetOriginalFile){ const t=document.querySelector('label[for="targetSheetSelect"]'); if(t) t.textContent=(window.__i18n&&window.__i18n['placeholder.source2'])||t.textContent; } }
+  },300); }
+  } catch(e){}
+});
+</script>
+</html>
